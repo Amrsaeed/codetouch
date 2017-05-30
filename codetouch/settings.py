@@ -69,7 +69,11 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'codetouch.wsgi.application'
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
+# SESSION AGE 30 Minutes
+SESSION_COOKIE_AGE = 30*60
+SESSION_SAVE_EVERY_REQUEST = True
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
