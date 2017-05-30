@@ -1,5 +1,5 @@
-from django.shortcuts import render, render_to_response
-from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import render
+from django.http import HttpResponseRedirect
 from .models import Message
 from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
@@ -7,11 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.utils import timezone
-from django.core import serializers
 import datetime
-import json
-
-# Create your views here.
 
 
 def index(request):
@@ -77,7 +73,6 @@ def datetime_handler(x):
 @login_required(login_url='/')
 def webchat(request):
     secondary_user = request.POST.get('secondary_user')
-    print(secondary_user)
     message_text = request.POST.get('message')
 
     if message_text:
@@ -131,7 +126,6 @@ def webchat(request):
 
 
 def signout(request):
-    print('Ana geet')
     logout(request)
     return HttpResponseRedirect(reverse('messenger:index'))
 
