@@ -1,11 +1,15 @@
 # Dockerfile
 
 # FROM directive instructing base image to build upon
-FROM django
+FROM python:3.5
 
 # COPY startup script into known file location in container
-ADD . /codetouch
+
 WORKDIR /codetouch
+ADD requirements.txt /code/
+ADD . /codetouch
+RUN pip install -r requirements.txt
+
 # EXPOSE port 8000 to allow communication to/from server
 EXPOSE 8000
 
