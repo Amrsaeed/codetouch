@@ -1,7 +1,5 @@
-from operator import attrgetter
-
 from django.shortcuts import render, render_to_response
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from .models import Message
 from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
@@ -9,6 +7,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.utils import timezone
+from django.core import serializers
+import datetime
+import json
 
 # Create your views here.
 
@@ -66,9 +67,17 @@ def signup(request):
     return render(request, 'messenger/index.html', context)
 
 
+def datetime_handler(x):
+    if isinstance(x, datetime.datetime):
+        time = str(x.hour)+":"+str(x.minute)+":"+str(x.second)
+        # return x.isoformat()
+        return time
+    raise TypeError("Unknown type")
+
 @login_required(login_url='/')
 def webchat(request):
     secondary_user = request.POST.get('secondary_user')
+    print(secondary_user)
     message_text = request.POST.get('message')
 
     if message_text:
@@ -102,18 +111,27 @@ def webchat(request):
                    'offline_users': offline_users,
                    'main_user': request.user,
                    'No Messages': 'Send a message now to begin the conversation'}
+
         return render(request, 'messenger/webchat.html', context)
 
     messages = recieved_messages | sent_messages
     messages = messages.order_by('sentOn')
-
     context = {'online_users': online_users,
                'offline_users': offline_users,
                'main_user': request.user,
                'secondary_user': secondary_user,
                'Messages': messages}
 
-    return render(request, 'messenger/webchat.html', context)
+    if request.is_ajax() and request.method == 'POST':
+        context = {'Messages': messages, 'secondary_user': secondary_user, 'main_user': request.user}
+        return render(request, 'messenger/chatbody.html', context)
+        # return render(request, 'messenger/webchat.html', context)
+    else:
+        return render(request, 'messenger/webchat.html', context)
 
-def chat_update(request):
-    return render_to_response('index.html', context)
+
+def signout(request):
+    print('Ana geet')
+    logout(request)
+    return HttpResponseRedirect(reverse('messenger:index'))
+

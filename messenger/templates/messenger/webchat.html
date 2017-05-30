@@ -1,125 +1,177 @@
 <!DOCTYPE html>
-<html lang="en">
+<html >
 {% load static %}
-
-<head>
-    <meta charset="utf-8">
+  <head>
+    <meta charset="UTF-8">
     <title>Codetouch Messenger</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
-      <link rel="stylesheet" href="{% static 'messenger/css/webchat2.css' %}">
+{#          <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">#}
+        <link rel="stylesheet" href="{% static 'messenger/css/webchat.css' %}">
 
-</head>
-<body>
-<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.6.8-fix/jquery.nicescroll.min.js"></script>
-<div class="content container-fluid bootstrap snippets">
-      <div class="row row-broken">
-        <div class="col-sm-3 col-xs-12">
-          <div class="col-inside-lg decor-default chat" style="overflow: hidden; outline: none;" tabindex="5000">
-            <div class="chat-users">
-              <h6>Online</h6>
-                {% for user in online_users %}
+  </head>
+
+  <body>
+    <input id="csrf_token" value="{{ csrf_token }}" type="hidden"/>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600,700' rel='stylesheet' type='text/css'>
+
+<div id="chatbox">
+	<div id="friendslist">
+    	<div id="topmenu">
+        	<span class="friends"></span>
+            <span class="chats"></span>
+            <input id='logoutPath' type="hidden" value="{% url 'messenger:signout' %}">
+            <form id="logoutForm" action="{% url 'messenger:signout' %}" method="post">
+                {% csrf_token %}
+                <span class="history"  onclick="logUserOut()" style="background: url({% static 'messenger/images/logout.png' %});
+                background-size: 40% 40%;
+                background-repeat: no-repeat;
+                position: relative;
+                left: 34px;
+                top: 22px;"></span>
+            </form>
+
+        </div>
+        
+        <div id="friends">
+            {% for user in online_users %}
                     {% if user.username != main_user.username %}
-                        <div class="user" id="{{ user.username }}">
-                            <div class="avatar">
-                            <img src="http://bootdey.com/img/Content/avatar/avatar1.png" alt="User name">
-                            <div class="status online"></div>
-                            </div>
-                            <div class="name" >{{ user.username }}</div>
-                            <div class="mood"> Status </div>
+                        <div class="friend" id="{{ user.username }}">
+                            <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/1_copy.jpg" />
+                            <p>
+                                <strong>{{ user.username }}</strong>
+                                <span>{{ user.email }}</span>
+                            </p>
+                            <div class="status available"></div>
                         </div>
                     {% endif %}
-                {% endfor %}
+            {% endfor %}
 
-                <h6>Offline</h6>
             {% for user in offline_users %}
-                    <div class="user">
-                    <div class="avatar">
-                    <img src="http://bootdey.com/img/Content/avatar/avatar3.png" alt="User name">
-                    <div class="status off"></div>
-                    </div>
-                    <div class="name">{{ user.username }}</div>
-                    <div class="mood">Status</div>
+                <div class="friend" id="{{ user.username }}">
+                    <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/1_copy.jpg" />
+                    <p>
+                        <strong>{{ user.username }}</strong>
+                        <span>{{ user.email }}</span>
+                    </p>
+                    <div class="status inactive"></div>
                 </div>
             {% endfor %}
+{#            <div id="search">#}
+{#	            <input type="text" id="searchfield" value="Search contacts..." />#}
+{#            </div>#}
+            
+        </div>                
+        
+    </div>	
+    
+    <div id="chatview" class="p1">    	
+        <div id="profile">
+
+            <div id="close">
+                <div class="cy"></div>
+                <div class="cx"></div>
             </div>
-          </div>
+            
+            <p>{{ secondary_user }}</p>
+            <span>miro@badev@gmail.com</span>
         </div>
 
-{#        {% if secondary_user %}#}
-
-        <div class="col-sm-9 col-xs-12 chat" style="overflow: hidden; outline: none;" tabindex="5001">
-          <div class="col-inside-lg decor-default">
-            <div class="chat-body" id="chat-body">
-              <h6 id="Reciever_Name">{{ secondary_user }}</h6>
-                {% for message in Messages %}
-                    {% if message.sender == main_user.username %}
-                        <div class="answer right">
-                    {% else %}
-                        <div class="answer left">
-                    {% endif %}
-
-                    <div class="avatar">
-                      <img src="http://bootdey.com/img/Content/avatar/avatar2.png" alt="User name">
-                      <div class="status off"></div>
-                    </div>
-                    <div class="text">
-                      {{ message.message_text }}
-                    </div>
-                    <div class="time">{{ message.sentOn }}</div>
-                  </div>
-                {% endfor %}
-              <div class="answer-add">
-                  <form action="{% url 'messenger:webchat' %}" method="post">
+        <div id="chat-messages">
+{#        	<label>Thursday 02</label>#}
+            {% include 'messenger/chatbody.html' %}
+        </div>
+        <div id="sendmessage">
+            <form method="post" action="{% url 'messenger:webchat' %}" id = "submitMessage">
                 {% csrf_token %}
-                <input placeholder="Write a message" name="message">
-                <input type="hidden" id="secondary_user" name="secondary_user" value=""/>
-                <button id="submit" type="Submit" name="action" class="answer-btn answer-btn-1" value="Send" data_url/>
-{#                <span class="answer-btn answer-btn-2"></span>#}
-                  </form>
-              </div>
-            </div>
-          </div>
+        	<input type="text" value="Send message..." name="message" id="message"/>
+            <input type="hidden" id="secondary_user" name="secondary_user" value=""/>
+            <button type="Submit" name="action"></button>
+            </form>
         </div>
-      </div>
-{#      {% endif %}#}
-    </div>
+
+    </div>        
 </div>
-<script src="http://netdna.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
-<script type="text/javascript">
-	$(function(){
-    $(".chat").niceScroll();
-});
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script src="{% static 'messenger/js/webchat.js' %}"></script>
+<script>
 
-    var addclass = 'color';
-    var $cols = $('.user').click(function(e) {
-    $cols.removeClass(addclass);
-    $(this).addClass(addclass);
-});
+    $("#logoutForm").click(function(){
 
-    $('.user').click(function(event) {
-    var user2 = $(this).attr('id');
-    document.getElementById("secondary_user").value = user2;
-    document.getElementById("Reciever_Name").innerHTML = user2;
-    $('#chat-body').load(document.URL +  ' #chat-body');
-    console.log(user2)
+    });
+    logUserOut = function() {
+        form = document.getElementById('logoutForm')
+        form.submit()
 
-});
-    $(function(){
-     $('form').on('submit', function(e){
-         e.preventDefault();
-         $.ajax({
-             url: $(this).attr('action'),
-             method: $(this).attr('method'),
-             success: function(data){ $('#target').html(data) }
-         });
-     });
-});
+    };
+	$(".friend").each(function(){
+		$(this).click(function(){
+			document.getElementById('secondary_user').value = this.id;
+			console.log(this.id);
+
+			$.ajax({
+            url: '{% url 'messenger:webchat' %}',
+            type: "POST",
+            method: "POST",
+            data: {
+                'secondary_user': document.getElementById('secondary_user').value,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                $("#chat-messages").replaceWith(response);
+            },
+            failure: function(response) {
+                alert('Got an error dude');
+            }
+        });
+
+			var childOffset = $(this).offset();
+			var parentOffset = $(this).parent().parent().offset();
+			var childTop = childOffset.top - parentOffset.top;
+			var clone = $(this).find('img').eq(0).clone();
+			var top = childTop+12+"px";
+
+			$(clone).css({'top': top}).addClass("floatingImg").appendTo("#chatbox");
+
+			setTimeout(function(){$("#profile p").addClass("animate");$("#profile").addClass("animate");}, 100);
+			setTimeout(function(){
+				$("#chat-messages").addClass("animate");
+				$('.cx, .cy').addClass('s1');
+				setTimeout(function(){$('.cx, .cy').addClass('s2');}, 100);
+				setTimeout(function(){$('.cx, .cy').addClass('s3');}, 200);
+			}, 150);
+
+			$('.floatingImg').animate({
+				'width': "68px",
+				'left':'108px',
+				'top':'20px'
+			}, 200);
+
+			var name = $(this).find("p strong").html();
+			var email = $(this).find("p span").html();
+			$("#profile p").html(name);
+			$("#profile span").html(email);
+
+			$(".message").not(".right").find("img").attr("src", $(clone).attr("src"));
+			$('#friendslist').fadeOut();
+			$('#chatview').fadeIn();
 
 
-</script>
-</body>
+			$('#close').unbind("click").click(function(){
+				$("#chat-messages, #profile, #profile p").removeClass("animate");
+				$('.cx, .cy').removeClass("s1 s2 s3");
+				$('.floatingImg').animate({
+					'width': "40px",
+					'top':top,
+					'left': '12px'
+				}, 200, function(){$('.floatingImg').remove()});
+
+				setTimeout(function(){
+					$('#chatview').fadeOut();
+					$('#friendslist').fadeIn();
+				}, 50);
+			});
+
+		});
+	});
+    </script>
+  </body>
 </html>

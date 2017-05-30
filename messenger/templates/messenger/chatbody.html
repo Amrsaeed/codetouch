@@ -1,0 +1,18 @@
+<div id="chat-messages">
+{% for message in Messages %}
+                {% if message.sender == main_user.username  %}
+                    <div class="message right">
+                    <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/1_copy.jpg" />
+                {% else %}
+                    <div class="message">
+                    <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/2_copy.jpg" />
+                {% endif %}
+
+                <div class="bubble">
+                	{{ message.message_text }}
+                    <div class="corner"></div>
+                    <span>{{ message.sentOn.time }}</span>
+                </div>
+            </div>
+{% endfor %}
+    </div></div>
